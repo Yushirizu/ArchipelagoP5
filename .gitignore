@@ -1,0 +1,34 @@
+## Build & Compiled Artifacts
+bin/
+obj/
+*.dll
+*.pdb
+*.exe
+
+## Rider / Visual Studio / IDE
+.vs/
+.idea/
+*.user
+*.userosv
+*.suo
+*.userprefs
+*.sln.docstates
+
+## Diagnostics & Helper Scripts
+*.ps1
+*.py
+__pycache__/
+graphify-out/
+
+## Log Files & Crash Dumps
+*.log
+CRASH_LOG.txt
+AP_LIVE_LOG.txt
+AP_ALWAYS_SAVED.log
+AP_UNHANDLED_CRASH.txt
+MASTER_AUDIT_REPORT.txt
+
+## OS Generated Files
+Thumbs.db
+Desktop.ini
+.DS_Store

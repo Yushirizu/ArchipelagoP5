@@ -1,0 +1,44 @@
+{
+  "ModId": "p5rpc.randomizer.archipelago_randomizer",
+  "ModName": "P5R Archipelago",
+  "ModAuthor": "Daphoa",
+  "ModVersion": "0.1.dev",
+  "ModDescription": "Archipelago Support for Persona 5 Royal on Steam",
+  "ModDll": "ArchipelagoP5RMod.dll",
+  "ModIcon": "Preview.png",
+  "ModR2RManagedDll32": "x86/ArchipelagoP5RMod.dll",
+  "ModR2RManagedDll64": "x64/ArchipelagoP5RMod.dll",
+  "ModNativeDll32": "",
+  "ModNativeDll64": "",
+  "Tags": [],
+  "CanUnload": false,
+  "HasExports": false,
+  "IsLibrary": false,
+  "ReleaseMetadataFileName": "ArchipelagoP5RMod.ReleaseMetadata.json",
+  "PluginData": {
+    "GitHubDependencies": {
+      "IdToConfigMap": {
+        "reloaded.sharedlib.hooks": {
+          "Config": {
+            "UserName": "Sewer56",
+            "RepositoryName": "Reloaded.SharedLib.Hooks.ReloadedII",
+            "UseReleaseTag": true,
+            "AssetFileName": "reloaded.sharedlib.hooks.zip"
+          },
+          "ReleaseMetadataName": "Sewer56.Update.ReleaseMetadata.json"
+        }
+      }
+    }
+  },
+  "IsUniversalMod": false,
+  "ModDependencies": [
+    "reloaded.sharedlib.hooks",
+    "reloaded.universal.fileemulationframework.bf",
+    "p5rpc.modloader"
+  ],
+  "OptionalDependencies": [],
+  "SupportedAppId": [
+    "p5r.exe"
+  ],
+  "ProjectUrl": ""
+}

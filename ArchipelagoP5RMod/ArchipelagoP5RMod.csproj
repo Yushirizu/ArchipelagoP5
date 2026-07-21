@@ -1,0 +1,113 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <LangVersion>12.0</LangVersion>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+        <OutputPath Condition="'$(RELOADEDIIMODS)' != ''">$(RELOADEDIIMODS)/ArchipelagoP5RMod</OutputPath>
+        <OutputPath Condition="'$(RELOADEDIIMODS)' == ''">C:\Reloaded-II\Mods\ArchipelagoP5RMod</OutputPath>
+        <ImplicitUsings>enable</ImplicitUsings>
+
+        <!-- IL Trimming Support for Framework Dependent Apps. Unofficial.
+             If you set this to true, trimming will be enabled when you publish the mod.
+             Test trimming with: `BuildLinked.ps1` in PowerShell. -->
+        <ReloadedILLink>false</ReloadedILLink>
+        <Version>0.1.0</Version>
+        <Company />
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <DefineConstants>TRACE;DEVELOP</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ReloadedLinkRoots Include="ArchipelagoP5RMod" />
+        <!-- Add assemblies to be trimmed. You might need to add their dependencies too!  -->
+        <!-- <ReloadedLinkAssemblies Include="Reloaded.Memory" /> -->
+    </ItemGroup>
+
+    <Import Project="Reloaded.Trimming.targets" />
+    <Import Project="Reloaded.Checks.targets" />
+
+    <ItemGroup>
+        <None Remove="ModConfig.json" />
+        <None Remove="Publish.ps1" />
+        <None Remove="BuildLinked.ps1" />
+        <None Remove="Reloaded.Trimming.targets" />
+        <None Remove="Reloaded.Checks.targets" />
+        <None Update="FEmulator\BF\data\*.flow">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="P5REssentials\CPK\en.cpk\script\field\*.bf">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="FEmulator\BF\en.cpk\script\field\*.flow">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="P5REssentials\CPK\en.cpk\field\door\*.bf">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="P5REssentials\CPK\base.cpk\field\ftd\DATTBOX.FTD">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="P5REssentials\CPK\en.cpk\init\cmm.bin\cmmFunctionName.ctd">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="P5REssentials\CPK\en.cpk\init\cmm.bin\cmmFunctionTable.ctd">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="FEmulator\PAK\en.cpk\init\cmm.bin\cmmFunctionName.ctd">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="FEmulator\PAK\en.cpk\init\cmm.bin\cmmFunctionTable.ctd">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="FEmulator\PAK\EN.CPK\CMM.BIN\cmmFunctionTable.ctd">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="FEmulator\PAK\EN.CPK\CMM.BIN\cmmFunctionName.ctd">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="P5REssentials\CPK\en.cpk\field\init\*.bf">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="ModConfig.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <None Update="Preview.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Archipelago.MultiClient.Net" Version="6.3.1" />
+        <PackageReference Include="Microsoft.NET.ILLink.Tasks" Version="8.0.8" />
+        <PackageReference Include="p5rpc.flowscriptframework.interfaces" Version="1.0.1" />
+        <PackageReference Include="Reloaded.Memory.Sigscan" Version="3.1.9" />
+        <PackageReference Include="Reloaded.Memory.SigScan.ReloadedII.Interfaces" Version="1.2.0" />
+        <PackageReference Include="Reloaded.Mod.Interfaces" Version="2.4.0" ExcludeAssets="runtime" />
+        <PackageReference Include="Reloaded.SharedLib.Hooks" Version="1.9.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="FlowFiles\bin\*.BF"/>
+        <EmbeddedResource Include="FlowFiles\bin\*.BF"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="FlowFiles\bin\" />
+      <Folder Include="P5REssentials\CPK\en.cpk\field\init\" />
+      <Folder Include="P5REssentials\CPK\en.cpk\script\field\" />
+    </ItemGroup>
+
+    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+      <Exec Command="FlowFiles/compile.bat" />
+    </Target>
+
+</Project>

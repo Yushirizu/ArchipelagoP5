@@ -1,0 +1,157 @@
+﻿// 
+// Imports
+// 
+
+import( "AP_Methods.msg" );
+
+// 
+// Procedure declarations
+// 
+
+// Procedure Index: 0
+void RewardItems()
+{
+    BIT_ON( ( 0x60000000 + 1 ) )
+    // FLD_SMP_EVENT_BEGIN( 0 );
+    // EVT_SET_ENABLE_CTRL_KEY( 0 );
+    int itemId;
+    int itemNum;
+    itemId = GET_COUNT(0x10000000 + 2);
+    itemNum = GET_COUNT(0x10000000 + 3);
+    MSG_WND_DSP();
+    GET_ITEM_WINDOW( itemId, itemNum, 0 );
+    MSG_WND_CLS();
+    // EVT_SET_ENABLE_CTRL_KEY( 1 );
+    // FLD_SMP_EVENT_END( 0 );
+    BIT_OFF( ( 0x60000000 + 1 ) );
+}
+
+// Procedure Index: 1
+void NotifyConfidantAbilityReward() 
+{
+    BIT_ON( ( 0x60000000 + 1 ) )
+    int cmmAbility = GET_COUNT( ( 0x10000000 + 1 ) ) 
+    
+    MSG_WND_DSP();
+    if ( cmmAbility == 52 ) {
+        MSG( MSG_CMM_52 ); 
+    } else if ( cmmAbility == 55) {
+        MSG( MSG_CMM_55 );
+    } else if ( cmmAbility == 0x4B ) {
+        MSG( MSG_CMM_4B );
+    } else if ( cmmAbility == 0x49 ) {
+        MSG( MSG_CMM_49 );
+    } else if ( cmmAbility == 0x11B ) {
+        MSG( MSG_CMM_11B );
+    } else if ( cmmAbility == 0x4A ) {
+        MSG( MSG_CMM_4A );
+    } else if ( cmmAbility == 0x50 ) {
+        MSG( MSG_CMM_50 );
+    } else if ( cmmAbility == 0x4D ) {
+        MSG( MSG_CMM_4D );
+    } else if ( cmmAbility == 0x4F ) {
+        MSG( MSG_CMM_4F );
+    } else if ( cmmAbility == 0x85 ) {
+        MSG( MSG_CMM_85 );
+    } else if ( cmmAbility == 0x89 ) {
+        MSG( MSG_CMM_89 );
+    } else if ( cmmAbility == 0x87 ) {
+        MSG( MSG_CMM_87 );
+    } else if ( cmmAbility == 0x8B ) {
+        MSG( MSG_CMM_8B );
+    }
+    MSG_WND_CLS();
+    BIT_OFF( ( 0x60000000 + 1 ) );
+}
+
+// Procedure Index: 2
+void NotifyConfidantLocation() 
+{
+    BIT_ON( ( 0x60000000 + 1 ) )
+    
+    MSG_WND_DSP();
+    MSG_SYSTEM( MSG_NOTIFY_AP_LOCATION );
+    GET_ITEM_WINDOW( ( 0x4000 ), 1, 0 );
+    MSG_WND_CLS();
+    BIT_OFF( ( 0x60000000 + 1 ) );
+    BIT_OFF( ( 0x60000000 + 3 ) );
+}
+
+// Procedure Index: 3
+void NotifyInfiltration() 
+{
+    BIT_ON( ( 0x60000000 + 1 ) )
+    
+    int palace = GET_COUNT( ( 0x10000000 + 4 ) ) 
+
+    MSG_WND_DSP();
+    MSG( MSG_NOTIFY_INFILTRATION_LUST );
+    MSG_WND_CLS();
+    BIT_OFF( ( 0x60000000 + 1 ) );
+}
+
+// Procedure Index: 4
+void Test()
+{
+    int testVar;
+    // testVar = FLD_LOCAL_FLAG_CHK( 0xC048 );
+    testVar = 5;
+    SET_MSG_VAR(1, testVar, 0);
+    MSG_WND_DSP();
+    MSG( MSG_TEST );
+    MSG_WND_CLS();
+    FLD_LOCAL_FLAG_ON( 0xC048 );
+}
+
+// Procedure Index: 5
+void NotifyMissingSaveDirectory()
+{
+    BIT_ON( ( 0x60000000 + 1 ) )
+    
+    MSG_WND_DSP();
+    MSG_SYSTEM( MSG_ERROR_NO_SAVE_DIRECTORY );
+    MSG_WND_CLS();
+    BIT_OFF( ( 0x60000000 + 1 ) );
+}
+
+// Procedure Index: 6
+void NewGameSetupSdl()
+{
+    CALL_EVENT(101, 1); // Select difficulty and name
+    CALL_EVENT(104, 1); // Butterfly animation
+    BIT_OFF( 1037 );
+    SCENE_CHANGE_WAIT();
+    BIT_OFF( 12305 );
+    BIT_OFF( 12543 );
+    DATE_DISP( 1 );
+}
+
+// Procedure Index: 7
+void NotifyPartyMemberJoined() 
+{
+    BIT_ON( ( 0x60000000 + 1 ) )
+    int partyMem = GET_COUNT( ( 0x10000000 + 1 ) ) 
+    
+    MSG_WND_DSP();
+    if ( partyMem == 2 ) {
+        MSG( MSG_PARTY_SKULL ); 
+    } else if ( partyMem == 3 ) {
+        MSG( MSG_PARTY_MONA );
+    } else if ( partyMem == 4 ) {
+        MSG( MSG_PARTY_PANTHER );
+    } else if ( partyMem == 5 ) {
+        MSG( MSG_PARTY_FOX );
+    } else if ( partyMem == 6 ) {
+        MSG( MSG_PARTY_QUEEN );
+    } else if ( partyMem == 7 ) {
+        MSG( MSG_PARTY_NOIR );
+    } else if ( partyMem == 8 ) {
+        MSG( MSG_PARTY_ORACLE );
+    } else if ( partyMem == 9 ) {
+        MSG( MSG_PARTY_CROW );
+    } else if ( partyMem == 10 ) {
+        MSG( MSG_PARTY_VIOLET );
+    }
+    MSG_WND_CLS();
+    BIT_OFF( ( 0x60000000 + 1 ) );
+}
