@@ -227,11 +227,22 @@ public class FlagManipulator
 
     private byte BitChkImpl(uint bitIndex)
     {
-        if (bitIndex is < ExternalBitSection * SectionMask or >= ExternalBitSection * SectionMask + NumExternalBitFlags)
-            return _bitChkHook.OriginalFunction(bitIndex);
+        try
+        {
+            if (bitIndex is < ExternalBitSection * SectionMask or >= ExternalBitSection * SectionMask + NumExternalBitFlags)
+            {
+                if (_bitChkHook != null) return _bitChkHook.OriginalFunction(bitIndex);
+                return 0;
+            }
 
-        uint bit = bitIndex - ExternalBitSection * SectionMask;
-        return externalBitFlags[bit] ? (byte)1 : (byte)0;
+            uint bit = bitIndex - ExternalBitSection * SectionMask;
+            return externalBitFlags[bit] ? (byte)1 : (byte)0;
+        }
+        catch (Exception ex)
+        {
+            MyLogger.LogException($"BitChkImpl({bitIndex})", ex);
+            return _bitChkHook != null ? _bitChkHook.OriginalFunction(bitIndex) : (byte)0;
+        }
     }
 
     private static bool _isSettingBit = false;
@@ -302,52 +313,68 @@ public class FlagManipulator
 
     private uint BitOnImpl()
     {
-        var bitIndex = (uint)FlowFunctionWrapper.GetFlowscriptInt4Arg(0);
-
-        PrintFlagOfInterest(bitIndex, true);
-
-        if (neverTouchFlags.Contains(bitIndex))
+        try
         {
-            MyLogger.DebugLog($"Tried to turn on bit {bitIndex:X2} but we shouldn't touch it.");
+            var bitIndex = (uint)FlowFunctionWrapper.GetFlowscriptInt4Arg(0);
+
+            PrintFlagOfInterest(bitIndex, true);
+
+            if (neverTouchFlags.Contains(bitIndex))
+            {
+                MyLogger.DebugLog($"Tried to turn on bit {bitIndex:X2} but we shouldn't touch it.");
+                return 1;
+            }
+
+            if (bitIndex is < ExternalBitSection * SectionMask or >= ExternalBitSection * SectionMask + NumExternalBitFlags)
+            {
+                if (_bitOnHook != null) return _bitOnHook.OriginalFunction();
+                return 1;
+            }
+
+            uint bitOffset = bitIndex % ExternalBitSection;
+
+            externalBitFlags[bitOffset] = true;
+
             return 1;
         }
-
-        if (bitIndex is < ExternalBitSection * SectionMask or >= ExternalBitSection * SectionMask + NumExternalBitFlags)
+        catch (Exception ex)
         {
-            if (_bitOnHook != null) return _bitOnHook.OriginalFunction();
-            return 1;
+            MyLogger.LogException("BitOnImpl", ex);
+            return _bitOnHook != null ? _bitOnHook.OriginalFunction() : 1;
         }
-
-        uint bitOffset = bitIndex % ExternalBitSection;
-
-        externalBitFlags[bitOffset] = true;
-
-        return 1;
     }
 
     private uint BitOffImpl()
     {
-        var bitIndex = (uint)FlowFunctionWrapper.GetFlowscriptInt4Arg(0);
-
-        PrintFlagOfInterest(bitIndex, false);
-
-        if (neverTouchFlags.Contains(bitIndex))
+        try
         {
-            MyLogger.DebugLog($"Tried to turn off bit {bitIndex:X2} but we shouldn't touch it.");
+            var bitIndex = (uint)FlowFunctionWrapper.GetFlowscriptInt4Arg(0);
+
+            PrintFlagOfInterest(bitIndex, false);
+
+            if (neverTouchFlags.Contains(bitIndex))
+            {
+                MyLogger.DebugLog($"Tried to turn off bit {bitIndex:X2} but we shouldn't touch it.");
+                return 1;
+            }
+
+            if (bitIndex is < ExternalBitSection * SectionMask or >= ExternalBitSection * SectionMask + NumExternalBitFlags)
+            {
+                if (_bitOffHook != null) return _bitOffHook.OriginalFunction();
+                return 1;
+            }
+
+            uint bitOffset = bitIndex % ExternalBitSection;
+
+            externalBitFlags[bitOffset] = false;
+
             return 1;
         }
-
-        if (bitIndex is < ExternalBitSection * SectionMask or >= ExternalBitSection * SectionMask + NumExternalBitFlags)
+        catch (Exception ex)
         {
-            if (_bitOffHook != null) return _bitOffHook.OriginalFunction();
-            return 1;
+            MyLogger.LogException("BitOffImpl", ex);
+            return _bitOffHook != null ? _bitOffHook.OriginalFunction() : 1;
         }
-
-        uint bitOffset = bitIndex % ExternalBitSection;
-
-        externalBitFlags[bitOffset] = false;
-
-        return 1;
     }
 
     [Conditional("DEVELOP")]
