@@ -103,7 +103,12 @@
     <ItemGroup>
       <Folder Include="FlowFiles\bin\" />
       <Folder Include="P5REssentials\CPK\en.cpk\field\init\" />
+      <Folder Include="P5REssentials\CPK\en.cpk\field\door\" />
       <Folder Include="P5REssentials\CPK\en.cpk\script\field\" />
+      <Folder Include="P5REssentials\CPK\base.cpk\LICENSE\TEXTURE\" />
+      <Folder Include="P5REssentials\CPK\en.cpk\LICENSE\TEXTURE\" />
+      <Folder Include="P5REssentials\CPK\base.cpk\FIELD\INIT\" />
+      <Folder Include="P5REssentials\CPK\base.cpk\FIELD\DOOR\" />
     </ItemGroup>
 
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
