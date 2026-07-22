@@ -16,7 +16,8 @@ for %%f in (.//src//*.flow) do (
         set dest="../P5REssentials!localDest!"
         call echo !dest!
         set dest=!dest!
-        mv ./bin/%%~nf.bf !dest!
+        if not exist "!dest!" mkdir "!dest!"
+        copy /Y "bin\%%~nf.bf" "!dest!\"
     )
     endlocal
 )
