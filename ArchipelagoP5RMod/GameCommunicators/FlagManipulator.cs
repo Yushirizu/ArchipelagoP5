@@ -281,9 +281,12 @@ public class FlagManipulator
 
                 unsafe
                 {
-                    if (FlowFunctionWrapper.IsAdrNullPointer || FlowFunctionWrapper.FlowCommandDataAddress == null || FlowFunctionWrapper.FlowCommandDataAddress->FileHeader == IntPtr.Zero)
+                    if (FlowFunctionWrapper.IsAdrNullPointer ||
+                        FlowFunctionWrapper.FlowCommandDataAddress == null ||
+                        !NativeSafetyGuard.IsValidPointer((IntPtr)FlowFunctionWrapper.FlowCommandDataAddress) ||
+                        !NativeSafetyGuard.IsValidPointer(FlowFunctionWrapper.FlowCommandDataAddress->FileHeader))
                     {
-                        MyLogger.DebugLog($"[FLAG] Skipping native BitToggle for 0x{targetBit:X} ({targetBit}) - No active flow context.");
+                        MyLogger.DebugLog($"[FLAG] Safe Guard: Skipping native BitToggle for 0x{targetBit:X} ({targetBit}) - Inactive/invalid flow context.");
                         return;
                     }
                 }

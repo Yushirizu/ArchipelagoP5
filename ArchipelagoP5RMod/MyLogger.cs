@@ -17,10 +17,17 @@ public static class MyLogger
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     private delegate int UnhandledExceptionFilterDelegate(IntPtr exceptionPointers);
 
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+    private delegate int VectoredExceptionHandlerDelegate(IntPtr exceptionInfo);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern IntPtr AddVectoredExceptionHandler(uint first, VectoredExceptionHandlerDelegate handler);
+
     [DllImport("kernel32.dll", SetLastError = true)]
     private static extern IntPtr SetUnhandledExceptionFilter(UnhandledExceptionFilterDelegate lpTopLevelExceptionFilter);
 
     private static UnhandledExceptionFilterDelegate _nativeCrashDelegate;
+    private static VectoredExceptionHandlerDelegate _vehDelegate;
 
     public static void Setup(ILogger logger, Config configuration)
     {
@@ -39,13 +46,38 @@ public static class MyLogger
         }
         catch { }
 
-        // Register Native SEH Crash Filter
+        // Register Native SEH & VEH Crash Filters
         _nativeCrashDelegate = OnNativeCrash;
+        _vehDelegate = OnVectoredException;
         try
         {
             SetUnhandledExceptionFilter(_nativeCrashDelegate);
+            AddVectoredExceptionHandler(1, _vehDelegate);
         }
         catch { }
+    }
+
+    private static unsafe int OnVectoredException(IntPtr exceptionInfo)
+    {
+        try
+        {
+            if (exceptionInfo != IntPtr.Zero)
+            {
+                IntPtr* pointers = (IntPtr*)exceptionInfo;
+                IntPtr rec = pointers[0];
+                if (rec != IntPtr.Zero)
+                {
+                    uint code = *(uint*)rec;
+                    if (code == 0xC0000005) // EXCEPTION_ACCESS_VIOLATION
+                    {
+                        IntPtr address = *(IntPtr*)(rec + 16);
+                        Log($"[VEH NATIVE ACCESS VIOLATION] Fault at 0x{address:X16}");
+                    }
+                }
+            }
+        }
+        catch { }
+        return 0; // EXCEPTION_CONTINUE_SEARCH
     }
 
     private static unsafe int OnNativeCrash(IntPtr exceptionPointers)
