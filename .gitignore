@@ -1,34 +1,45 @@
-## Build & Compiled Artifacts
-bin/
-obj/
+## .NET / C# Build & Publish Artifacts
+[Bb]in/
+[Oo]bj/
+[Pp]ublish/
 *.dll
 *.pdb
 *.exe
-
-## Rider / Visual Studio / IDE
-.vs/
-.idea/
 *.user
 *.userosv
 *.suo
 *.userprefs
 *.sln.docstates
 
-## Diagnostics & Helper Scripts
-*.ps1
-*.py
-__pycache__/
-graphify-out/
+## JetBrains Rider & Visual Studio
+.idea/
+.vs/
+*.DotSettings.user
 
-## Log Files & Crash Dumps
+## Diagnostic / Audit Scripts & Tooling
+*.py
+run_*.ps1
+test_*.ps1
+audit_*.ps1
+fix_*.ps1
+resolve_*.ps1
+repomix-output.xml
+graphify-out/
+.gemini/
+.agents/
+scratch/
+
+## Logs & Audit Reports
 *.log
-CRASH_LOG.txt
-AP_LIVE_LOG.txt
+*.txt
 AP_ALWAYS_SAVED.log
+AP_LIVE_LOG.txt
 AP_UNHANDLED_CRASH.txt
+CRASH_LOG.txt
 MASTER_AUDIT_REPORT.txt
 
 ## OS Generated Files
 Thumbs.db
+ehthumbs.db
 Desktop.ini
 .DS_Store

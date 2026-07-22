@@ -5,7 +5,7 @@ namespace ArchipelagoP5RMod.Types;
 [StructLayout(LayoutKind.Explicit)]
 public unsafe struct FlowCommandData
 {
-    [FieldOffset(0x0)] public fixed char CurrFuncName[40];
+    [FieldOffset(0x0)] public fixed byte CurrFuncName[40];
     [FieldOffset(0x28)] public int CurrInstructionIndex;
 
     [FieldOffset(0x2c)] public int StackSize;

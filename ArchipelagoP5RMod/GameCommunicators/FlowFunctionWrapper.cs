@@ -114,7 +114,8 @@ public static class FlowFunctionWrapper
     {
         IntPtr backup = FlowCommandDataAddress != null ? (IntPtr)FlowCommandDataAddress : IntPtr.Zero;
 
-        var handle = GCHandle.Alloc(new FlowCommandData(), GCHandleType.Pinned);
+        FlowCommandData initialData = FlowCommandDataAddress != null ? *FlowCommandDataAddress : default;
+        var handle = GCHandle.Alloc(initialData, GCHandleType.Pinned);
         _commandDataStack.Push((backup, handle));
 
         FlowCommandDataAddress = (FlowCommandData*)handle.AddrOfPinnedObject();

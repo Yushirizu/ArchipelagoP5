@@ -23,10 +23,14 @@ public class FlagManipulator
     [Function(CallingConventions.Fastcall)]
     private delegate uint BitToggleType();
 
+    [Function(CallingConventions.Fastcall)]
+    private delegate void DirectSetBitType(uint value, uint bitIndex);
+
     // private IntPtr _bitChkWrapperAdr;
     private IHook<BitChkType> _bitChkHook;
     private IHook<BitToggleType> _bitOnHook;
     private IHook<BitToggleType> _bitOffHook;
+    private DirectSetBitType _directSetBit;
     private IHook<FlowFunctionWrapper.FlowFuncDelegate4> _getCountFlowHook;
     private IHook<FlowFunctionWrapper.FlowFuncDelegate4> _setCountFlowHook;
 
@@ -103,6 +107,14 @@ public class FlagManipulator
             "48 83 EC 28 31 C9 E8 ?? ?? ?? ?? B9 01 00 00 00 4C 63 C8",
             address => _setCountFlowHook =
                 hooks.CreateHook<FlowFunctionWrapper.FlowFuncDelegate4>(SetCountImpl, address).Activate());
+
+        AddressScanner.DelayedScanPattern(
+            "48 83 EC 48 48 83 64 24 38 00 8B CA 48 83 64 24 30 00",
+            address =>
+            {
+                MyLogger.DebugLog($"[FLAG] Dynamically scanned _directSetBit: 0x{address:X}");
+                _directSetBit = hooks.CreateWrapper<DirectSetBitType>(address, out _);
+            });
 
         MyLogger.DebugLog("Created FlagManipulator Hooks");
 
@@ -273,6 +285,21 @@ public class FlagManipulator
 
             try
             {
+                if (_directSetBit != null)
+                {
+                    _directSetBit(value ? 1u : 0u, targetBit);
+                    return;
+                }
+
+                unsafe
+                {
+                    if (FlowFunctionWrapper.IsAdrNullPointer || FlowFunctionWrapper.FlowCommandDataAddress == null || FlowFunctionWrapper.FlowCommandDataAddress->FileHeader == IntPtr.Zero)
+                    {
+                        MyLogger.DebugLog($"[FLAG] Skipping native BitToggle for 0x{targetBit:X} ({targetBit}) - No active flow context.");
+                        return;
+                    }
+                }
+
                 FlowFunctionWrapper.CallFlowFunctionSetup((int)targetBit);
 
                 if (value)
