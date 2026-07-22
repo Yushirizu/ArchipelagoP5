@@ -47,9 +47,9 @@ public class ScheduleManipulator
                 case TypeOfDay.Setup:
                     if (time == SETUP_TIME)
                     {
-                        MyLogger.DebugLog("Trying to call custom schedule for setup day.");
+                        MyLogger.DebugLog("Calling custom setup flow function and proceeding to native schedule.");
                         _onNewGameSetup?.Invoke();
-                        return FlowFunctionWrapper.CallCustomFlowFunction(CustomApMethodsIndexes.NewGameSetupSdl);
+                        FlowFunctionWrapper.CallCustomFlowFunction(CustomApMethodsIndexes.NewGameSetupSdl);
                     }
 
                     (newMonth, newDay) = GetBoringDay(month, day, time);
