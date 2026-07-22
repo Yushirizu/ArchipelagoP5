@@ -75,20 +75,12 @@ public class ScheduleManipulator
 
     private (uint month, uint day) GetBoringDay(uint month, uint day, byte time)
     {
-        if (time is < 4 or > 6)
+        if (month == 4 && day < 21)
         {
-            return (4, 1);
+            return (4, 21);
         }
 
-        switch (month)
-        {
-            case 4:
-                return (4, 1);
-            case 5:
-                return (5, 20);
-            default:
-                return (month, day);
-        }
+        return (month, day);
     }
 
     private (uint month, uint day) GetInfiltrationDay(uint month, uint day, byte time)
