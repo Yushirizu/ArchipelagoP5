@@ -75,9 +75,9 @@ public class ScheduleManipulator
 
     private (uint month, uint day) GetBoringDay(uint month, uint day, byte time)
     {
-        if (month == 4 && day < 21)
+        if (month == 4 && day < 7)
         {
-            return (4, 21);
+            return (4, 1);
         }
 
         return (month, day);

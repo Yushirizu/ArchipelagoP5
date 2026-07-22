@@ -108,8 +108,8 @@ public class FlagManipulator
             address => _setCountFlowHook =
                 hooks.CreateHook<FlowFunctionWrapper.FlowFuncDelegate4>(SetCountImpl, address).Activate());
 
-        AddressScanner.DelayedScanPattern(
-            "48 83 EC 48 48 83 64 24 38 00 8B CA 48 83 64 24 30 00 33 D2 8B 44 24 70 89 44 24 28 4C 89 4C 24 20 41 83 C9 FF E8 02",
+        AddressScanner.DelayedAddressHack(
+            (nint)0x1405C1730,
             address =>
             {
                 MyLogger.DebugLog($"[FLAG] Dynamically scanned _directSetBit: 0x{address:X}");
