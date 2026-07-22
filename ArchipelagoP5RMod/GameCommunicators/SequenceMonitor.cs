@@ -9,19 +9,20 @@ public static class SequenceMonitor
 
     public static unsafe SequenceType CurrentSequenceType
     {
+        [System.Runtime.ExceptionServices.HandleProcessCorruptedStateExceptions]
         get
         {
             try
             {
-                if (_sequence == null || _sequence == (SequenceObj**)0x0)
+                if (_sequence == null || !NativeSafetyGuard.IsValidPointer((IntPtr)_sequence))
                     return SequenceType.None;
 
                 var seqObj = *_sequence;
-                if (seqObj == (SequenceObj*)0x0 || (ulong)seqObj < 0x10000 || (ulong)seqObj > 0x7FFFFFFFFFFF)
+                if (seqObj == null || !NativeSafetyGuard.IsValidPointer((IntPtr)seqObj))
                     return SequenceType.None;
 
                 var args = seqObj->args;
-                if (args == (SequenceInfo*)0x0 || (ulong)args < 0x10000 || (ulong)args > 0x7FFFFFFFFFFF)
+                if (args == null || !NativeSafetyGuard.IsValidPointer((IntPtr)args))
                     return SequenceType.None;
 
                 return args->CurrentSequence;
@@ -35,19 +36,20 @@ public static class SequenceMonitor
 
     public static unsafe SequenceType LastSequenceType
     {
+        [System.Runtime.ExceptionServices.HandleProcessCorruptedStateExceptions]
         get
         {
             try
             {
-                if (_sequence == null || _sequence == (SequenceObj**)0x0)
+                if (_sequence == null || !NativeSafetyGuard.IsValidPointer((IntPtr)_sequence))
                     return SequenceType.None;
 
                 var seqObj = *_sequence;
-                if (seqObj == (SequenceObj*)0x0 || (ulong)seqObj < 0x10000 || (ulong)seqObj > 0x7FFFFFFFFFFF)
+                if (seqObj == null || !NativeSafetyGuard.IsValidPointer((IntPtr)seqObj))
                     return SequenceType.None;
 
                 var args = seqObj->args;
-                if (args == (SequenceInfo*)0x0 || (ulong)args < 0x10000 || (ulong)args > 0x7FFFFFFFFFFF)
+                if (args == null || !NativeSafetyGuard.IsValidPointer((IntPtr)args))
                     return SequenceType.None;
 
                 return args->LastSequence;
