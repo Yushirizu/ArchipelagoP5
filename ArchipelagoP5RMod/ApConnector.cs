@@ -233,40 +233,49 @@ public class ApConnector
             return;
         _isProcessingItems = true;
 
-        while (!_readyToCollect)
+        try
         {
-            await Task.Delay(1000);
-        }
-
-        MyLogger.DebugLog("Collecting items from archipelago");
-        MyLogger.DebugLog($"LastRewardIndex: {LastRewardIndex}");
-        MyLogger.DebugLog($"session: {LastRewardIndex}");
-        while (LastRewardIndex < _session.Items.AllItemsReceived.Count)
-        {
-            var itemInfo = _session.Items.AllItemsReceived[(int)LastRewardIndex];
-
-            var item = new ApItem(itemInfo.ItemId);
-
-            MyLogger.DebugLog(string.IsNullOrEmpty(itemInfo.ItemName)
-                ? $"Collecting item {LastRewardIndex}: {item.ToString()}"
-                : $"Collecting item {LastRewardIndex}: {itemInfo.ItemName}");
-
-            var e = new ApItemReceivedEvent(item, itemInfo.Player.Alias,
-                itemInfo.Player.IsRelatedTo(_session.Players.ActivePlayer));
-            OnItemReceivedEvent.Invoke(this, e);
-            if (!e.Handled)
+            while (!_readyToCollect)
             {
-                // Wait for a second then try again.
                 await Task.Delay(1000);
-                continue;
             }
 
-            MyLogger.DebugLog($"Processed index {LastRewardIndex} for item {item.ToString()}");
+            MyLogger.DebugLog("Collecting items from archipelago");
+            MyLogger.DebugLog($"LastRewardIndex: {LastRewardIndex}");
+            MyLogger.DebugLog($"session: {LastRewardIndex}");
+            while (LastRewardIndex < _session.Items.AllItemsReceived.Count)
+            {
+                var itemInfo = _session.Items.AllItemsReceived[(int)LastRewardIndex];
 
-            LastRewardIndex++;
+                var item = new ApItem(itemInfo.ItemId);
+
+                MyLogger.DebugLog(string.IsNullOrEmpty(itemInfo.ItemName)
+                    ? $"Collecting item {LastRewardIndex}: {item.ToString()}"
+                    : $"Collecting item {LastRewardIndex}: {itemInfo.ItemName}");
+
+                var e = new ApItemReceivedEvent(item, itemInfo.Player.Alias,
+                    itemInfo.Player.IsRelatedTo(_session.Players.ActivePlayer));
+                OnItemReceivedEvent.Invoke(this, e);
+                if (!e.Handled)
+                {
+                    // Wait for a second then try again.
+                    await Task.Delay(1000);
+                    continue;
+                }
+
+                MyLogger.DebugLog($"Processed index {LastRewardIndex} for item {item.ToString()}");
+
+                LastRewardIndex++;
+            }
         }
-
-        _isProcessingItems = false;
+        catch (Exception ex)
+        {
+            MyLogger.LogException("ProcessAllItems", ex);
+        }
+        finally
+        {
+            _isProcessingItems = false;
+        }
     }
 
     public async Task ReportLocationCheckAsync(params long[] locationIds)
@@ -283,14 +292,22 @@ public class ApConnector
     public async void ScoutLocations(long[]? locationIds,
         Action<Dictionary<long, ScoutedItemInfo>> scoutLocationsCallback)
     {
-        await WaitForConnection();
+        try
+        {
+            await WaitForConnection();
 
-        MyLogger.DebugLog("Connection made - scouting locations");
+            MyLogger.DebugLog("Connection made - scouting locations");
 
-        var results = _session.Locations.ScoutLocationsAsync(locationIds);
-        await results.WaitAsync(new TimeSpan(0, 0, 0, 10));
-
-        scoutLocationsCallback.Invoke(results.Result);
+            var results = await _session.Locations.ScoutLocationsAsync(locationIds);
+            if (results != null)
+            {
+                scoutLocationsCallback.Invoke(results);
+            }
+        }
+        catch (Exception ex)
+        {
+            MyLogger.LogException("ScoutLocations", ex);
+        }
     }
 
     public async Task<IEnumerable<long>> GetUnfoundLocations(IEnumerable<long>? locationIds = null)
