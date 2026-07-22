@@ -1,6 +1,8 @@
-@echo off
-
-set compiler="G:\Tools\Atlus Script Tools\AtlusScriptCompiler.exe"
+if exist "C:\Users\ulyss\Downloads\Atlus-Script-Tools\AtlusScriptCompiler.exe" (
+    set compiler="C:\Users\ulyss\Downloads\Atlus-Script-Tools\AtlusScriptCompiler.exe"
+) else (
+    set compiler="G:\Tools\Atlus Script Tools\AtlusScriptCompiler.exe"
+)
 
 echo "Building BF Files"
 
@@ -14,10 +16,9 @@ for %%f in (.//src//*.flow) do (
         for /f "delims=" %%x in (!destFile!) do set localDest=%%x
         set "localDest=!localDest:*/=/!"
         set dest="../P5REssentials!localDest!"
-        call echo !dest!
-        set dest=!dest!
-        if not exist "!dest!" mkdir "!dest!"
-        copy /Y "bin\%%~nf.bf" "!dest!\"
+        set "winDest=!dest:/=\!"
+        if not exist "!winDest!" mkdir "!winDest!"
+        copy /Y "bin\%%~nf.bf" "!winDest!"
     )
     endlocal
 )
