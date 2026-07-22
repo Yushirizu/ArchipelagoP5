@@ -108,13 +108,6 @@ public class FlagManipulator
             address => _setCountFlowHook =
                 hooks.CreateHook<FlowFunctionWrapper.FlowFuncDelegate4>(SetCountImpl, address).Activate());
 
-        AddressScanner.DelayedAddressHack(
-            (nint)0x5C1730,
-            address =>
-            {
-                MyLogger.DebugLog($"[FLAG] Dynamically scanned _directSetBit: 0x{address:X}");
-                _directSetBit = hooks.CreateWrapper<DirectSetBitType>(address, out _);
-            });
 
         MyLogger.DebugLog("Created FlagManipulator Hooks");
 
@@ -285,11 +278,6 @@ public class FlagManipulator
 
             try
             {
-                if (_directSetBit != null)
-                {
-                    _directSetBit(value ? 1u : 0u, targetBit);
-                    return;
-                }
 
                 unsafe
                 {
