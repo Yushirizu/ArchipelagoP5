@@ -198,6 +198,7 @@ public static class FlowFunctionWrapper
         return success;
     }
 
+    [System.Runtime.ExceptionServices.HandleProcessCorruptedStateExceptions]
     public static unsafe IntPtr CallCustomFlowFunction(CustomApMethodsIndexes func)
     {
         MyLogger.DebugLog($"[FLOW] Calling CustomFlowFunction: {func}");
@@ -213,9 +214,16 @@ public static class FlowFunctionWrapper
             return IntPtr.Zero;
         }
 
-        var res = RunFlowFuncFromFile(8, (IntPtr)BfLoader.ApMethodsBfFilePointer, BfLoader.ApMethodsBfFileLength,
-            (uint)func);
-        MyLogger.DebugLog($"[FLOW] CustomFlowFunction {func} completed with result 0x{res:X}");
-        return res;
+        try
+        {
+            var res = RunFlowFuncFromFile(8, (IntPtr)BfLoader.ApMethodsBfFilePointer, BfLoader.ApMethodsBfFileLength, (uint)func);
+            MyLogger.DebugLog($"[FLOW] CustomFlowFunction {func} completed with result 0x{res:X}");
+            return res;
+        }
+        catch (Exception ex)
+        {
+            MyLogger.LogException($"CallCustomFlowFunction {func}", ex);
+            return IntPtr.Zero;
+        }
     }
 }

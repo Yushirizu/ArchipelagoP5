@@ -30,6 +30,7 @@ public class ScheduleManipulator
             });
     }
 
+    [System.Runtime.ExceptionServices.HandleProcessCorruptedStateExceptions]
     private IntPtr RunScheduleForDayImpl(uint month, uint day, byte time)
     {
         try
@@ -64,12 +65,20 @@ public class ScheduleManipulator
             }
 
             if (_runScheduleForDayHook == null) return IntPtr.Zero;
-            return _runScheduleForDayHook.OriginalFunction(newMonth, newDay, time);
+            try
+            {
+                return _runScheduleForDayHook.OriginalFunction(newMonth, newDay, time);
+            }
+            catch (Exception ex)
+            {
+                MyLogger.LogException("RunScheduleForDay Native OriginalFunction", ex);
+                return IntPtr.Zero;
+            }
         }
         catch (Exception ex)
         {
             MyLogger.LogException("RunScheduleForDayImpl", ex);
-            return _runScheduleForDayHook != null ? _runScheduleForDayHook.OriginalFunction(month, day, time) : IntPtr.Zero;
+            return IntPtr.Zero;
         }
     }
 
