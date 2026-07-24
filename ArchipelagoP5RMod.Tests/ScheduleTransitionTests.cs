@@ -35,4 +35,28 @@ public class ScheduleTransitionTests
         int totalDays = DateManipulator.GetTotalDays(month, day);
         Assert.Equal(expectedTotalDays, totalDays);
     }
+
+    [Fact]
+    public void SetupDay_TransitionsTo_FirstLoopDay21()
+    {
+        short setupTotalDay = DateManipulator.SETUP_TOTAL_DAY; // 6 (April 7)
+        short firstLoopTotalDay = 21; // April 22
+
+        Assert.Equal(6, setupTotalDay);
+        Assert.Equal(TypeOfDay.Setup, DateManipulator.ToTypeOfDay(4, 7));
+        Assert.Equal(TypeOfDay.LoopDay, DateManipulator.ToTypeOfDay(4, 22));
+        Assert.True(firstLoopTotalDay > setupTotalDay, "First loop day must be strictly after setup day to prevent infinite loop");
+    }
+
+    [Fact]
+    public void SetupTime_IsFour()
+    {
+        Assert.Equal(4, ScheduleManipulator.SETUP_TIME);
+    }
+
+    [Fact]
+    public void WarpToLeblanc_IndexIsEight()
+    {
+        Assert.Equal(8, (int)CustomApMethodsIndexes.WarpToLeblanc);
+    }
 }

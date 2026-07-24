@@ -11,7 +11,7 @@ public class ScheduleManipulator
     private delegate IntPtr RunScheduleForDay(uint month, uint day, byte time);
 
     private IHook<RunScheduleForDay> _runScheduleForDayHook;
-    private const byte SETUP_TIME = DateManipulator.SETUP_TIME;
+    public const byte SETUP_TIME = DateManipulator.SETUP_TIME;
 
     private readonly Action _onNewGameSetup;
 
