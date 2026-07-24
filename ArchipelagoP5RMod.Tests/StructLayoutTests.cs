@@ -43,4 +43,13 @@ public class StructLayoutTests
         Assert.Equal((byte)0, (byte)FlowReturnType.Int);
         Assert.Equal((byte)1, (byte)FlowReturnType.Float);
     }
+
+    [Fact]
+    public void GameTask_FieldOffsets_MatchNativeP5RLayout()
+    {
+        Assert.Equal(0x0, (int)Marshal.OffsetOf<GameTask>(nameof(GameTask.eventType)));
+        Assert.Equal(0x30, (int)Marshal.OffsetOf<GameTask>(nameof(GameTask.runtimeFunc)));
+        Assert.Equal(0x40, (int)Marshal.OffsetOf<GameTask>(nameof(GameTask.onCompleteFunc)));
+        Assert.Equal(0x48, (int)Marshal.OffsetOf<GameTask>(nameof(GameTask.args)));
+    }
 }
