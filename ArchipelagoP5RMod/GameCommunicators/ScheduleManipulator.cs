@@ -49,7 +49,19 @@ public class ScheduleManipulator
                     {
                         MyLogger.DebugLog("Calling custom setup flow function for setup day.");
                         _onNewGameSetup?.Invoke();
-                        return FlowFunctionWrapper.CallCustomFlowFunction(CustomApMethodsIndexes.NewGameSetupSdl);
+                        FlowFunctionWrapper.CallCustomFlowFunction(CustomApMethodsIndexes.NewGameSetupSdl);
+
+                        var dateInfo = DateManipulator.DateInfoAddress;
+                        if (dateInfo != null)
+                        {
+                            dateInfo->currTotalDays = 21;
+                            dateInfo->nextTotalDays = 21;
+                            dateInfo->currTime = 0;
+                            dateInfo->nextTime = 0;
+                        }
+
+                        MyLogger.DebugLog("Setup complete - warping to Leblanc for Day 21.");
+                        return FlowFunctionWrapper.CallCustomFlowFunction(CustomApMethodsIndexes.WarpToLeblanc);
                     }
 
                     (newMonth, newDay) = GetBoringDay(month, day, time);
