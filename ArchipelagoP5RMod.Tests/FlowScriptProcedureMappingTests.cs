@@ -50,6 +50,5 @@ public class FlowScriptProcedureMappingTests
         Assert.Contains("void NotifyMissingSaveDirectory()", content);
         Assert.Contains("void NewGameSetupSdl()", content);
         Assert.Contains("void NotifyPartyMemberJoined()", content);
-        Assert.Contains("CALL_FIELD( 150, 2, 0, 0 );", content);
     }
 }

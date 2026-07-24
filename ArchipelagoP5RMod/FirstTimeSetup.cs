@@ -183,15 +183,15 @@ public class FirstTimeSetup
         // Party members
         flagManipulator.SetBit(11779, true); // Can Edit Party
         partyManipulator.UnlockPartyMember(PartyMember.Joker);
-        partyManipulator.UnlockPartyMember(PartyMember.Skull);
-        partyManipulator.UnlockPartyMember(PartyMember.Mona);
-        partyManipulator.UnlockPartyMember(PartyMember.Panther);
-        partyManipulator.UnlockPartyMember(PartyMember.Fox);
-        partyManipulator.UnlockPartyMember(PartyMember.Queen);
-        partyManipulator.UnlockPartyMember(PartyMember.Noir);
-        partyManipulator.UnlockPartyMember(PartyMember.Oracle);
-        partyManipulator.UnlockPartyMember(PartyMember.Crow);
-        partyManipulator.UnlockPartyMember(PartyMember.Violet);
+        // partyManipulator.UnlockPartyMember(PartyMember.Skull);
+        // partyManipulator.UnlockPartyMember(PartyMember.Mona);
+        // partyManipulator.UnlockPartyMember(PartyMember.Panther);
+        // partyManipulator.UnlockPartyMember(PartyMember.Fox);
+        // partyManipulator.UnlockPartyMember(PartyMember.Queen);
+        // partyManipulator.UnlockPartyMember(PartyMember.Noir);
+        // partyManipulator.UnlockPartyMember(PartyMember.Oracle);
+        // partyManipulator.UnlockPartyMember(PartyMember.Crow);
+        // partyManipulator.UnlockPartyMember(PartyMember.Violet);
         flagManipulator.SetBit(12048, true); // Black Mask
 
         // Skip fusion tutorial guess
