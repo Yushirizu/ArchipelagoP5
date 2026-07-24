@@ -1,4 +1,5 @@
 using ArchipelagoP5RMod;
+using ArchipelagoP5RMod.GameCommunicators;
 using ArchipelagoP5RMod.Types;
 using Xunit;
 

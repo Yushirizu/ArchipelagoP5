@@ -31,7 +31,7 @@ public class ScheduleManipulator
     }
 
     [System.Runtime.ExceptionServices.HandleProcessCorruptedStateExceptions]
-    private IntPtr RunScheduleForDayImpl(uint month, uint day, byte time)
+    private unsafe IntPtr RunScheduleForDayImpl(uint month, uint day, byte time)
     {
         try
         {
