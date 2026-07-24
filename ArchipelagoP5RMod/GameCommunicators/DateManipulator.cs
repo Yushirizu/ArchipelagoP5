@@ -217,9 +217,9 @@ public class DateManipulator
             return;
         }
 
-        if (dateInfo->currTotalDays < SETUP_TOTAL_DAY)
+        if (dateInfo->currTotalDays <= SETUP_TOTAL_DAY)
         {
-            MyLogger.DebugLog("Going to setup day.");
+            MyLogger.DebugLog("Setup day active, maintaining setup date.");
             dateInfo->nextTime = SETUP_TIME;
             dateInfo->nextTotalDays = SETUP_TOTAL_DAY;
             return;
