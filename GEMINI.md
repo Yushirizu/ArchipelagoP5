@@ -22,4 +22,12 @@ All CLI terminal commands in this repository MUST be executed using `rtk` (Rust 
   - Disk logging must force immediate unbuffered flushing (`sw.Flush()`, `fs.Flush(true)`) to prevent log data loss on native crashes.
   - **Script Organization**: All Python diagnostic/analysis scripts must be created in `scripts/` directory for reuse.
   - **Git Operations**: `rtk git add .` is authorized to stage all modified and untracked repository files when committing.
+- **New Game Intro Event Sequence (`AP_Methods.flow` / `NewGameSetupSdl`)**:
+  1. `CALL_EVENT(102, 1)`: Casino Prologue VERY FIRST (Stained glass jump, fight shadow mob).
+  2. `CALL_EVENT(105, 1)`: Police Interrogation Room.
+  3. `CALL_EVENT(101, 1)`: Select Difficulty & Name Input.
+  4. `CALL_EVENT(105, 2)`: Sae Interrogation Dialogue.
+  5. `CALL_EVENT(104, 1)`: Blue Butterfly / Velvet Room.
+  6. `CALL_EVENT(106, 1)`: Cinematic with Shido.
+  7. Transition to Day 21 (April 22) -> `WarpToLeblanc` (`CALL_FIELD(150, 2, 0, 0)`) at Yongen-Jaya / Leblanc.
 
