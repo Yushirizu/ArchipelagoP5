@@ -14,6 +14,7 @@ public class ScheduleManipulator
     public const byte SETUP_TIME = DateManipulator.SETUP_TIME;
 
     private readonly Action _onNewGameSetup;
+    private bool _hasRunNewGameSetup = false;
 
     public ScheduleManipulator(FlagManipulator flagManipulator, IReloadedHooks hooks, Action onNewGameSetup)
     {
@@ -45,10 +46,21 @@ public class ScheduleManipulator
             switch (typeOfDay)
             {
                 case TypeOfDay.Setup:
-                    if (time == SETUP_TIME)
+                    if (time == SETUP_TIME && !_hasRunNewGameSetup)
                     {
-                        MyLogger.DebugLog("Calling custom setup flow function for setup day.");
+                        _hasRunNewGameSetup = true;
+                        MyLogger.DebugLog("Calling custom setup flow function for setup day (one-time execution).");
                         _onNewGameSetup?.Invoke();
+
+                        var dateInfo = DateManipulator.DateInfoAddress;
+                        if (dateInfo != null)
+                        {
+                            dateInfo->currTotalDays = 21;
+                            dateInfo->nextTotalDays = 21;
+                            dateInfo->currTime = 0;
+                            dateInfo->nextTime = 0;
+                        }
+
                         return FlowFunctionWrapper.CallCustomFlowFunction(CustomApMethodsIndexes.NewGameSetupSdl);
                     }
 
