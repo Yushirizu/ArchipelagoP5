@@ -155,3 +155,9 @@ void NotifyPartyMemberJoined()
     MSG_WND_CLS();
     BIT_OFF( ( 0x60000000 + 1 ) );
 }
+
+// Procedure Index: 8
+void WarpToLeblanc()
+{
+    CALL_FIELD( 150, 2, 0, 0 );
+}

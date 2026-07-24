@@ -57,8 +57,16 @@ public class ScheduleManipulator
                 case TypeOfDay.InfiltrationDay:
                     (newMonth, newDay) = GetInfiltrationDay(month, day, time);
                     break;
-                case TypeOfDay.None:
                 case TypeOfDay.LoopDay:
+                    if (month == 4 && day == 22)
+                    {
+                        MyLogger.DebugLog("First loop day active - warping to Leblanc field map.");
+                        FlowFunctionWrapper.CallCustomFlowFunction(CustomApMethodsIndexes.WarpToLeblanc);
+                    }
+
+                    (newMonth, newDay) = GetBoringDay(month, day, time);
+                    break;
+                case TypeOfDay.None:
                 default:
                     (newMonth, newDay) = GetBoringDay(month, day, time);
                     break;

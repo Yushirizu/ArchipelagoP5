@@ -1,4 +1,4 @@
-﻿namespace ArchipelagoP5RMod;
+namespace ArchipelagoP5RMod;
 
 public enum CustomApMethodsIndexes
 {
@@ -10,4 +10,5 @@ public enum CustomApMethodsIndexes
     NotifyMissingSaveDirectoryError = 5,
     NewGameSetupSdl = 6,
     NotifyPartyMemberJoined = 7,
+    WarpToLeblanc = 8,
 }

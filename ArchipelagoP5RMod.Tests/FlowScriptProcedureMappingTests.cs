@@ -11,7 +11,7 @@ public class FlowScriptProcedureMappingTests
     public void CustomApMethodsIndexes_EnumValues_AreSequentialAndZeroBased()
     {
         var values = (CustomApMethodsIndexes[])Enum.GetValues(typeof(CustomApMethodsIndexes));
-        Assert.Equal(8, values.Length);
+        Assert.Equal(9, values.Length);
 
         for (int i = 0; i < values.Length; i++)
         {
@@ -28,6 +28,7 @@ public class FlowScriptProcedureMappingTests
     [InlineData(CustomApMethodsIndexes.NotifyMissingSaveDirectoryError, 5)]
     [InlineData(CustomApMethodsIndexes.NewGameSetupSdl, 6)]
     [InlineData(CustomApMethodsIndexes.NotifyPartyMemberJoined, 7)]
+    [InlineData(CustomApMethodsIndexes.WarpToLeblanc, 8)]
     public void CustomApMethodsIndexes_ExpectedExplicitIndexes(CustomApMethodsIndexes index, int expectedValue)
     {
         Assert.Equal(expectedValue, (int)index);
@@ -50,5 +51,6 @@ public class FlowScriptProcedureMappingTests
         Assert.Contains("void NotifyMissingSaveDirectory()", content);
         Assert.Contains("void NewGameSetupSdl()", content);
         Assert.Contains("void NotifyPartyMemberJoined()", content);
+        Assert.Contains("void WarpToLeblanc()", content);
     }
 }
