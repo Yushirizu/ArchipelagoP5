@@ -46,16 +46,26 @@ public class ScheduleManipulator
             switch (typeOfDay)
             {
                 case TypeOfDay.Setup:
-                    if (time == SETUP_TIME && !_hasRunNewGameSetup)
+                    if (!_hasRunNewGameSetup)
                     {
                         _hasRunNewGameSetup = true;
-                        MyLogger.DebugLog("Calling custom setup flow function for setup day (one-time execution).");
+                        MyLogger.DebugLog("Calling custom setup flow function for setup day.");
                         _onNewGameSetup?.Invoke();
                         return FlowFunctionWrapper.CallCustomFlowFunction(CustomApMethodsIndexes.NewGameSetupSdl);
                     }
-
-                    (newMonth, newDay) = GetBoringDay(month, day, time);
-                    break;
+                    else
+                    {
+                        MyLogger.DebugLog("Setup flow already ran - advancing date to Day 21 (April 22) and warping to Leblanc.");
+                        var dateInfo = DateManipulator.DateInfoAddress;
+                        if (dateInfo != null)
+                        {
+                            dateInfo->currTotalDays = 21;
+                            dateInfo->nextTotalDays = 21;
+                            dateInfo->currTime = 0;
+                            dateInfo->nextTime = 0;
+                        }
+                        return FlowFunctionWrapper.CallCustomFlowFunction(CustomApMethodsIndexes.WarpToLeblanc);
+                    }
                 case TypeOfDay.InfiltrationDay:
                     (newMonth, newDay) = GetInfiltrationDay(month, day, time);
                     break;
