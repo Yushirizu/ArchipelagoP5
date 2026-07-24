@@ -1,4 +1,4 @@
-﻿// 
+// 
 // Imports
 // 
 
@@ -124,6 +124,7 @@ void NewGameSetupSdl()
     BIT_OFF( 12305 );
     BIT_OFF( 12543 );
     DATE_DISP( 1 );
+    CALL_FIELD( 150, 2, 0, 0 );
 }
 
 // Procedure Index: 7
