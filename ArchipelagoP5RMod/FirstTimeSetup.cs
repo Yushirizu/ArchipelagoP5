@@ -71,6 +71,7 @@ public class FirstTimeSetup
         DateManipulator dateManipulator, MiscManipulator miscManipulator, ItemManipulator itemManipulator,
         PartyManipulator partyManipulator)
     {
+        dateManipulator.IsSetupComplete = true;
         foreach (uint adr in _onBits)
         {
             flagManipulator.SetBit(adr, true);

@@ -39,6 +39,7 @@ public class DateManipulator
     public event OnDateChangedHandler OnDateChanged = delegate { };
 
     private bool disablingCalendarAnimation = false;
+    public bool IsSetupComplete { get; set; } = false;
 
     public DateManipulator(GameTaskListener gameTaskListener, FlagManipulator flagManipulator, IReloadedHooks hooks)
     {
@@ -217,7 +218,7 @@ public class DateManipulator
             return;
         }
 
-        if (dateInfo->currTotalDays <= SETUP_TOTAL_DAY)
+        if (!IsSetupComplete && dateInfo->currTotalDays <= SETUP_TOTAL_DAY)
         {
             MyLogger.DebugLog("Setup day active, maintaining setup date.");
             dateInfo->nextTime = SETUP_TIME;
