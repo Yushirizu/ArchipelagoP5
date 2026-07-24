@@ -21,3 +21,5 @@ All CLI terminal commands in this repository MUST be executed using `rtk` (Rust 
   - Bit flag mutations should call native direct engine functions (`DirectSetBit` at `0x1405C1730`) instead of flowscript VM opcode handlers to prevent out-of-context execution crashes.
   - Disk logging must force immediate unbuffered flushing (`sw.Flush()`, `fs.Flush(true)`) to prevent log data loss on native crashes.
   - **Script Organization**: All Python diagnostic/analysis scripts must be created in `scripts/` directory for reuse.
+  - **Git Operations**: `rtk git add .` is authorized to stage all modified and untracked repository files when committing.
+
