@@ -51,16 +51,6 @@ public class ScheduleManipulator
                         _hasRunNewGameSetup = true;
                         MyLogger.DebugLog("Calling custom setup flow function for setup day (one-time execution).");
                         _onNewGameSetup?.Invoke();
-
-                        var dateInfo = DateManipulator.DateInfoAddress;
-                        if (dateInfo != null)
-                        {
-                            dateInfo->currTotalDays = 21;
-                            dateInfo->nextTotalDays = 21;
-                            dateInfo->currTime = 0;
-                            dateInfo->nextTime = 0;
-                        }
-
                         return FlowFunctionWrapper.CallCustomFlowFunction(CustomApMethodsIndexes.NewGameSetupSdl);
                     }
 
