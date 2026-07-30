@@ -117,11 +117,7 @@ void NotifyMissingSaveDirectory()
 // Procedure Index: 6
 void NewGameSetupSdl()
 {
-    CALL_EVENT( 102, 1 ); // 1. Casino prologue VERY FIRST
-    CALL_EVENT( 105, 1 ); // 2. Police interrogation room with Sae
-    CALL_EVENT( 101, 1 ); // 3. Select difficulty and name
-    CALL_EVENT( 104, 1 ); // 4. Blue Butterfly Velvet Room animation
-    CALL_EVENT( 106, 1 ); // 5. Cinematic with Shido
+    CALL_EVENT( 102, 1 ); // Casino prologue (naturally chains through 105 Sae/Police, 101 Name/Difficulty, 104 Velvet, 106 Shido)
     BIT_OFF( 1037 );
     SCENE_CHANGE_WAIT();
     BIT_OFF( 12305 );

@@ -24,13 +24,16 @@ All CLI terminal commands in this repository MUST be executed using `rtk` (Rust 
   - **Git Operations**: `rtk git add .` is authorized to stage all modified and untracked repository files when committing.
 
 ### New Game Intro Event Sequence (`AP_Methods.flow` / `NewGameSetupSdl`)
-Exact order — do NOT change, do NOT add `CALL_EVENT(105, 2)` (file `E105_002.ECS` does not exist):
-1. `CALL_EVENT(102, 1)`: Casino Prologue VERY FIRST (Stained glass jump, fight shadow mob).
-2. `CALL_EVENT(105, 1)`: Police Interrogation Room (contains Sae dialogue).
-3. `CALL_EVENT(101, 1)`: Select Difficulty & Name Input.
-4. `CALL_EVENT(104, 1)`: Blue Butterfly / Velvet Room.
-5. `CALL_EVENT(106, 1)`: Cinematic with Shido.
+Entry point: `CALL_EVENT(102, 1)` in `NewGameSetupSdl`.
+Vanilla P5R event scripting naturally chains through:
+1. `CALL_EVENT(102, 1)`: Casino Prologue.
+2. `E105_001`: Police Interrogation / Sae.
+3. `E101_001`: Select Difficulty & Name Input.
+4. `E104_001`: Blue Butterfly / Velvet Room.
+5. `E106_001`: Cinematic with Shido.
 6. Transition to Day 21 (April 22) -> `WarpToLeblanc` (`CALL_FIELD(150, 2, 0, 0)`) at Yongen-Jaya / Leblanc.
+
+DO NOT stack multiple `CALL_EVENT` calls in `NewGameSetupSdl`! `CALL_EVENT` is asynchronous and queues events on top of each other, causing out-of-order execution (Sae -> Sojiro -> Police -> infinite loading).
 
 ---
 
@@ -38,7 +41,7 @@ Exact order — do NOT change, do NOT add `CALL_EVENT(105, 2)` (file `E105_002.E
 
 ### CALL_EVENT is Asynchronous
 - `CALL_EVENT(major, minor)` in `AP_Methods.flow` queues the event and returns **immediately** to C# — it does NOT block until the event finishes.
-- Never assume the event has completed when `CallCustomFlowFunction` returns.
+- Never queue multiple story `CALL_EVENT` calls in one procedure — native event scripts chain themselves. Stacking `CALL_EVENT` calls causes event collision and infinite loading freezes.
 - Do NOT call `CALL_FIELD` inside `NewGameSetupSdl` — it crashes the game (`0xFFFFFFFFFFFFFFFF` Access Violation) because the field manager context is not ready when called from inside a schedule hook.
 
 ### Safe Map Warp (CALL_FIELD) Rules
