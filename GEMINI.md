@@ -50,9 +50,9 @@ DO NOT stack multiple `CALL_EVENT` calls in `NewGameSetupSdl`! `CALL_EVENT` is a
 
 ### Setup Completion Transition Strategy
 - `_hasRunNewGameSetup` bool in `ScheduleManipulator` guards one-time execution of `NewGameSetupSdl`.
-- On first setup day hit (4/7 time 4): run `NewGameSetupSdl` and return its result to engine. DO NOT run `FirstTimeSetup.Setup()` yet; mutating story progress count `145` (`40100`) or flags prematurely causes native engine to skip Casino prologue (`102`) directly to Sojiro (`104`).
-- On subsequent setup day hits (4/7 time 5+): execute `FirstTimeSetup.Setup()` to initialize AP inventory/flags, update `dateInfo` to Day 21 (April 22), and pass `(4, 22)` to native `OriginalFunction`.
-- `DateManipulator.IsSetupComplete = true` is set in `FirstTimeSetup.Setup()` to allow `ManipulateInGameDate` to advance beyond `SETUP_TOTAL_DAY` (6).
+- On setup day hit (4/7 time 4): update `dateInfo` to Day 21 (April 22), run `FirstTimeSetup.Setup()` (`IsSetupComplete = true`), and execute `NewGameSetupSdl`.
+- Updating `dateInfo` to 21 when `NewGameSetupSdl` runs prevents `DateManipulator` from resetting `nextTotalDays` back to 6 during the 4/9 Metaverse App sequence, preventing desync native access violations.
+- On subsequent setup day hits (4/7 time 5+): update `dateInfo` to Day 21 (April 22) and pass `(4, 22)` to native `OriginalFunction`.
 
 ---
 
