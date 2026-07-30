@@ -42,7 +42,7 @@ DO NOT run `FirstTimeSetup.Setup()` before `NewGameSetupSdl` completes! `FirstTi
 
 ### CALL_EVENT is Asynchronous
 - `CALL_EVENT(major, minor)` in `AP_Methods.flow` queues the event and returns **immediately** to C# — it does NOT block until the event finishes.
-- Never queue multiple story `CALL_EVENT` calls in one procedure — native event scripts chain themselves. Stacking `CALL_EVENT` calls causes event collision and infinite loading freezes.
+- Never queue multiple story `CALL_EVENT` calls in one procedure — native event scripts chain themselves (`102` → `105` → `101` → `104` → `106` → `107`). Stacking `CALL_EVENT` calls in one procedure causes event collision and out-of-order execution.
 - Do NOT call `CALL_FIELD` inside `NewGameSetupSdl` — it crashes the game (`0xFFFFFFFFFFFFFFFF` Access Violation) because the field manager context is not ready when called from inside a schedule hook.
 
 ### Safe Map Warp & Schedule Transition Rules
