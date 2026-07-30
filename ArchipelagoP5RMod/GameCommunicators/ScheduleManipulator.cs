@@ -54,8 +54,13 @@ public class ScheduleManipulator
                     }
                     else
                     {
-                        MyLogger.DebugLog("Setup flow completed - executing FirstTimeSetup and advancing schedule to Day 21 (April 22).");
-                        _onNewGameSetup?.Invoke();
+                        MyLogger.DebugLog("Setup flow completed - deferring FirstTimeSetup and advancing schedule to Day 21 (April 22).");
+                        Task.Run(async () =>
+                        {
+                            await Task.Delay(200);
+                            _onNewGameSetup?.Invoke();
+                        });
+
                         var dateInfo = DateManipulator.DateInfoAddress;
                         if (dateInfo != null)
                         {
