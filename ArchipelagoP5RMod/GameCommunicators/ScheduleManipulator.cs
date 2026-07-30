@@ -50,12 +50,12 @@ public class ScheduleManipulator
                     {
                         _hasRunNewGameSetup = true;
                         MyLogger.DebugLog("Calling custom setup flow function for setup day.");
-                        _onNewGameSetup?.Invoke();
                         return FlowFunctionWrapper.CallCustomFlowFunction(CustomApMethodsIndexes.NewGameSetupSdl);
                     }
                     else
                     {
-                        MyLogger.DebugLog("Setup flow already ran - advancing date to Day 21 (April 22).");
+                        MyLogger.DebugLog("Setup flow already ran - running FirstTimeSetup and advancing date to Day 21 (April 22).");
+                        _onNewGameSetup?.Invoke();
                         var dateInfo = DateManipulator.DateInfoAddress;
                         if (dateInfo != null)
                         {
