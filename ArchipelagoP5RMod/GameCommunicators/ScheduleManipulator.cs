@@ -49,21 +49,13 @@ public class ScheduleManipulator
                     if (!_hasRunNewGameSetup)
                     {
                         _hasRunNewGameSetup = true;
-                        MyLogger.DebugLog("Calling custom setup flow function for setup day and advancing date to Day 21 (April 22).");
-                        var dateInfo = DateManipulator.DateInfoAddress;
-                        if (dateInfo != null)
-                        {
-                            dateInfo->currTotalDays = 21;
-                            dateInfo->nextTotalDays = 21;
-                            dateInfo->currTime = 0;
-                            dateInfo->nextTime = 0;
-                        }
-                        _onNewGameSetup?.Invoke();
+                        MyLogger.DebugLog("Initial setup day hit: executing custom setup flow function (NewGameSetupSdl).");
                         return FlowFunctionWrapper.CallCustomFlowFunction(CustomApMethodsIndexes.NewGameSetupSdl);
                     }
                     else
                     {
-                        MyLogger.DebugLog("Setup flow already ran - advancing schedule to Day 21 (April 22).");
+                        MyLogger.DebugLog("Setup flow completed - executing FirstTimeSetup and advancing schedule to Day 21 (April 22).");
+                        _onNewGameSetup?.Invoke();
                         var dateInfo = DateManipulator.DateInfoAddress;
                         if (dateInfo != null)
                         {

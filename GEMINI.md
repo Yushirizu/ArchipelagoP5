@@ -24,16 +24,17 @@ All CLI terminal commands in this repository MUST be executed using `rtk` (Rust 
   - **Git Operations**: `rtk git add .` is authorized to stage all modified and untracked repository files when committing.
 
 ### New Game Intro Event Sequence (`AP_Methods.flow` / `NewGameSetupSdl`)
-Entry point: `CALL_EVENT(102, 1)` in `NewGameSetupSdl`.
-Vanilla P5R event scripting naturally chains through:
-1. `CALL_EVENT(102, 1)`: Casino Prologue.
-2. `E105_001`: Police Interrogation / Sae.
-3. `E101_001`: Select Difficulty & Name Input.
-4. `E104_001`: Blue Butterfly / Velvet Room.
-5. `E106_001`: Cinematic with Shido.
-6. Transition to Day 21 (April 22) -> `WarpToLeblanc` (`CALL_FIELD(150, 2, 0, 0)`) at Yongen-Jaya / Leblanc.
+Official sequence written down and enforced in `NewGameSetupSdl`:
+1. `CALL_EVENT(102, 1)`: Casino Prologue (Very First).
+2. `CALL_EVENT(105, 1)`: Police Interrogation.
+3. `CALL_EVENT(101, 1)`: Select Difficulty & Name Input.
+4. `CALL_EVENT(105, 1)`: Sae Interrogation Dialogue.
+5. `CALL_EVENT(104, 1)`: Blue Butterfly / Velvet Room.
+6. `CALL_EVENT(106, 1)`: Cinematic with Shido.
+7. `CALL_EVENT(107, 1)`: Metro station / Ginza line transfer.
+8. Transition to Day 21 (April 22 Leblanc free-roam).
 
-DO NOT stack multiple `CALL_EVENT` calls in `NewGameSetupSdl`! `CALL_EVENT` is asynchronous and queues events on top of each other, causing out-of-order execution (Sae -> Sojiro -> Police -> infinite loading).
+DO NOT run `FirstTimeSetup.Setup()` before `NewGameSetupSdl` completes! `FirstTimeSetup` mutates bit `6144` (`DbgScript_150_000`) and story count `145` (`40100`), which causes native P5R to skip the intro cutscenes and jump to Sojiro (`104`) mid-sequence. `FirstTimeSetup` MUST be deferred to the Day 21 schedule transition.
 
 ---
 
