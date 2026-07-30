@@ -44,29 +44,14 @@ DO NOT stack multiple `CALL_EVENT` calls in `NewGameSetupSdl`! `CALL_EVENT` is a
 - Never queue multiple story `CALL_EVENT` calls in one procedure — native event scripts chain themselves. Stacking `CALL_EVENT` calls causes event collision and infinite loading freezes.
 - Do NOT call `CALL_FIELD` inside `NewGameSetupSdl` — it crashes the game (`0xFFFFFFFFFFFFFFFF` Access Violation) because the field manager context is not ready when called from inside a schedule hook.
 
-### Safe Map Warp (CALL_FIELD) Rules
-- `CALL_FIELD(150, 2, 0, 0)` = warp to Yongen-Jaya / Leblanc (Field 150, minor 2, entrance 0).
-- `CALL_FIELD` MUST only be called from a dedicated `WarpToLeblanc` procedure (index 8 in `AP_Methods.flow`), invoked from C# via `FlowFunctionWrapper.CallCustomFlowFunction(CustomApMethodsIndexes.WarpToLeblanc)`.
-- NEVER call `CALL_FIELD` from inside `NewGameSetupSdl` or any other procedure that is itself called while `RunScheduleForDay` is still executing. This crashes the native field manager.
-
-### Setup Day Infinite Loop Cause & Fix
-- **Cause**: `ScheduleManipulator.RunScheduleForDayImpl` fires every frame on Day 6 (April 7, `time == 4`). If `NewGameSetupSdl` returns but the date pointer (`currTotalDays`) stays at 6, the engine re-runs the setup cutscene every frame (Police → Butterfly → Police loop).
-- **Fix**: After the first execution of `NewGameSetupSdl` (`_hasRunNewGameSetup = true`), subsequent setup-day calls immediately update the date pointer to Day 21 (`currTotalDays = 21`, `nextTotalDays = 21`, `currTime = 0`, `nextTime = 0`) and invoke `WarpToLeblanc`.
-- **NEVER mutate `dateInfo->currTotalDays` BEFORE calling `NewGameSetupSdl`** — the setup FlowScript runs in the context of Day 6 and dereferencing a moved date pointer crashes the engine.
-
-### Unsafe Pointer Access
-- Any method in C# that dereferences `DateInfo*` or any native pointer must be declared `unsafe`.
-- `RunScheduleForDayImpl` must carry the `unsafe` keyword because it accesses `DateManipulator.DateInfoAddress`.
-
-### Missing Event Files (E105_002)
-- `CALL_EVENT(105, 2)` references `EVENT\E100\E100\E105_002.ECS` which does NOT exist in the game files.
-- Using `CALL_EVENT(105, 2)` produces CRI file-not-found errors and causes a freeze/loop.
-- The Sae interrogation dialogue is already included inside `CALL_EVENT(105, 1)`. Do not add a second `105` call.
+### Safe Map Warp & Schedule Transition Rules
+- NEVER call `CallCustomFlowFunction(CustomApMethodsIndexes.WarpToLeblanc)` (or any procedure executing `CALL_FIELD`) inside `RunScheduleForDayImpl` hook or `NewGameSetupSdl`. Calling `CALL_FIELD` while inside a schedule execution context dereferences invalid/null field manager memory, causing `0xFFFFFFFFFFFFFFFF` Access Violation crash.
+- To transition to Day 21 (April 22 Leblanc), update `dateInfo` (`currTotalDays = 21`, `nextTotalDays = 21`, `currTime = 0`, `nextTime = 0`), set `newMonth = 4; newDay = 22;`, and pass them to `_runScheduleForDayHook.OriginalFunction(newMonth, newDay, time)`. Native schedule manager will natively load April 22 schedule at Leblanc cleanly.
 
 ### Setup Completion Transition Strategy
 - `_hasRunNewGameSetup` bool in `ScheduleManipulator` guards one-time execution of `NewGameSetupSdl`.
-- On first setup day hit: run `NewGameSetupSdl` and return its result to the engine.
-- On subsequent setup day hits (engine still on Day 6 before CALL_EVENT has advanced the date): advance `dateInfo` to Day 21 and call `WarpToLeblanc` from C#.
+- On first setup day hit (4/7 time 4): run `NewGameSetupSdl` and return its result to engine.
+- On subsequent setup day hits (4/7 time 5+): update `dateInfo` to Day 21 (April 22) and pass `(4, 22)` to native `OriginalFunction`.
 - `DateManipulator.IsSetupComplete = true` is set in `FirstTimeSetup.Setup()` to allow `ManipulateInGameDate` to advance beyond `SETUP_TOTAL_DAY` (6).
 
 ---

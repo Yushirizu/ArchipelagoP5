@@ -55,7 +55,7 @@ public class ScheduleManipulator
                     }
                     else
                     {
-                        MyLogger.DebugLog("Setup flow already ran - advancing date to Day 21 (April 22) and warping to Leblanc.");
+                        MyLogger.DebugLog("Setup flow already ran - advancing date to Day 21 (April 22).");
                         var dateInfo = DateManipulator.DateInfoAddress;
                         if (dateInfo != null)
                         {
@@ -64,18 +64,14 @@ public class ScheduleManipulator
                             dateInfo->currTime = 0;
                             dateInfo->nextTime = 0;
                         }
-                        return FlowFunctionWrapper.CallCustomFlowFunction(CustomApMethodsIndexes.WarpToLeblanc);
+                        newMonth = 4;
+                        newDay = 22;
+                        break;
                     }
                 case TypeOfDay.InfiltrationDay:
                     (newMonth, newDay) = GetInfiltrationDay(month, day, time);
                     break;
                 case TypeOfDay.LoopDay:
-                    if (month == 4 && day == 22)
-                    {
-                        MyLogger.DebugLog("First loop day active - warping to Leblanc field map.");
-                        FlowFunctionWrapper.CallCustomFlowFunction(CustomApMethodsIndexes.WarpToLeblanc);
-                    }
-
                     (newMonth, newDay) = GetBoringDay(month, day, time);
                     break;
                 case TypeOfDay.None:
