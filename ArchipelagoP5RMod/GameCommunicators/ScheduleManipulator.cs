@@ -3,6 +3,13 @@ using Reloaded.Hooks.Definitions.X86;
 
 namespace ArchipelagoP5RMod.GameCommunicators;
 
+public enum ScheduleState
+{
+    Uninitialized,
+    SetupFlowStarted,
+    IntroWarpCompleted
+}
+
 public class ScheduleManipulator
 {
     readonly FlagManipulator _flagManipulator;
@@ -14,8 +21,7 @@ public class ScheduleManipulator
     public const byte SETUP_TIME = DateManipulator.SETUP_TIME;
 
     private readonly Action _onNewGameSetup;
-    private bool _hasRunNewGameSetup = false;
-    private bool _hasCompletedIntroWarp = false;
+    public ScheduleState CurrentState { get; private set; } = ScheduleState.Uninitialized;
 
     public ScheduleManipulator(FlagManipulator flagManipulator, IReloadedHooks hooks, Action onNewGameSetup)
     {
@@ -26,7 +32,7 @@ public class ScheduleManipulator
             "40 55 48 8D 6C 24 ?? 48 81 EC B0 00 00 00 8B 05 ?? ?? ?? ??",
             address =>
             {
-                MyLogger.DebugLog($"[SCHEDULE] Dynamically scanned RunScheduleForDay: 0x{address:X}");
+                MyLogger.DebugLog($"[SCHEDULE:INIT] Dynamically scanned RunScheduleForDay: 0x{address:X}");
                 _runScheduleForDayHook =
                     hooks.CreateHook<RunScheduleForDay>(RunScheduleForDayImpl, address).Activate();
             });
@@ -37,27 +43,33 @@ public class ScheduleManipulator
     {
         try
         {
-            MyLogger.DebugLog($"[SCHEDULE] RunScheduleForDayImpl month:{month} day:{day} time:{time}");
+            if (month < 1 || month > 12 || day < 1 || day > 31)
+            {
+                MyLogger.DebugLog($"[SCHEDULE:WARN] Invalid schedule parameters received: month:{month} day:{day} time:{time}");
+                return _runScheduleForDayHook?.OriginalFunction(month, day, time) ?? IntPtr.Zero;
+            }
+
+            MyLogger.DebugLog($"[SCHEDULE:CALL] RunScheduleForDayImpl month:{month} day:{day} time:{time} (State:{CurrentState})");
             uint newMonth = month;
             uint newDay = day;
             byte newTime = time;
 
             var typeOfDay = DateManipulator.ToTypeOfDay(month, day);
-            MyLogger.DebugLog($"[SCHEDULE] typeOfDay: {typeOfDay}");
+            MyLogger.DebugLog($"[SCHEDULE:CHECK] typeOfDay: {typeOfDay}");
 
             switch (typeOfDay)
             {
                 case TypeOfDay.Setup:
-                    if (!_hasRunNewGameSetup)
+                    if (CurrentState == ScheduleState.Uninitialized)
                     {
-                        _hasRunNewGameSetup = true;
-                        MyLogger.DebugLog("Initial setup day hit: executing custom setup flow function (NewGameSetupSdl).");
+                        CurrentState = ScheduleState.SetupFlowStarted;
+                        MyLogger.DebugLog("[SCHEDULE:SETUP] Initial setup day hit: executing custom setup flow function (NewGameSetupSdl).");
                         return FlowFunctionWrapper.CallCustomFlowFunction(CustomApMethodsIndexes.NewGameSetupSdl);
                     }
-                    else if (!_hasCompletedIntroWarp)
+                    else if (CurrentState == ScheduleState.SetupFlowStarted)
                     {
-                        _hasCompletedIntroWarp = true;
-                        MyLogger.DebugLog("Setup flow completed - deferring FirstTimeSetup and advancing schedule to Day 21 (April 22).");
+                        CurrentState = ScheduleState.IntroWarpCompleted;
+                        MyLogger.DebugLog("[SCHEDULE:WARP] Setup flow completed - deferring FirstTimeSetup and advancing schedule to Day 21 (April 22).");
                         Task.Delay(500).ContinueWith(_ => _onNewGameSetup?.Invoke());
 
                         newMonth = 4;
@@ -67,9 +79,11 @@ public class ScheduleManipulator
                     break;
                 case TypeOfDay.InfiltrationDay:
                     (newMonth, newDay) = GetInfiltrationDay(month, day, time);
+                    MyLogger.DebugLog($"[SCHEDULE:INFILTRATION] Mapped infiltration day (m:{month}, d:{day}) -> (m:{newMonth}, d:{newDay})");
                     break;
                 case TypeOfDay.LoopDay:
                     (newMonth, newDay) = GetBoringDay(month, day, time);
+                    MyLogger.DebugLog($"[SCHEDULE:LOOP] Mapped loop day (m:{month}, d:{day}) -> (m:{newMonth}, d:{newDay})");
                     break;
                 case TypeOfDay.None:
                 default:
@@ -77,9 +91,18 @@ public class ScheduleManipulator
                     break;
             }
 
-            if (_runScheduleForDayHook == null) return IntPtr.Zero;
+            if (_runScheduleForDayHook == null)
+            {
+                MyLogger.DebugLog("[SCHEDULE:ERROR] _runScheduleForDayHook is null!");
+                return IntPtr.Zero;
+            }
+
             try
             {
+                if (newMonth != month || newDay != day || newTime != time)
+                {
+                    MyLogger.DebugLog($"[SCHEDULE:REDIRECT] Invoking OriginalFunction with redirected date: (m:{month}, d:{day}, t:{time}) -> (m:{newMonth}, d:{newDay}, t:{newTime})");
+                }
                 return _runScheduleForDayHook.OriginalFunction(newMonth, newDay, newTime);
             }
             catch (Exception ex)

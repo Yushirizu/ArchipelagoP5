@@ -10,8 +10,11 @@ public static class MyLogger
 {
     private static ILogger _logger;
     private static bool _logDebug = true;
-    private static readonly string LogFilePath1 = @"C:\Users\ulyss\AppData\Roaming\Reloaded-Mod-Loader-II\Logs\AP_ALWAYS_SAVED.log";
-    private static readonly string LogFilePath2 = @"C:\Users\ulyss\RiderProjects\ArchipelagoP5\AP_ALWAYS_SAVED.log";
+    private static readonly string LogFilePath1 = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+        "Reloaded-Mod-Loader-II", "Logs", "AP_ALWAYS_SAVED.log");
+    private static readonly string LogFilePath2 = Path.Combine(
+        AppDomain.CurrentDomain.BaseDirectory, "AP_ALWAYS_SAVED.log");
     private static readonly object _lock = new();
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
@@ -36,6 +39,7 @@ public static class MyLogger
 
         try
         {
+            Directory.CreateDirectory(Path.GetDirectoryName(LogFilePath1)!);
             File.WriteAllText(LogFilePath1, $"=== AP NATIVE & MANAGED LOG STARTED {DateTime.Now} ===\n");
         }
         catch { }
@@ -99,9 +103,11 @@ public static class MyLogger
         return 0; // EXCEPTION_CONTINUE_SEARCH
     }
 
+    private static string FormatPrefix() => $"[{DateTime.Now:HH:mm:ss.fff}] [T{Environment.CurrentManagedThreadId}] [AP]";
+
     public static void Log(string message)
     {
-        string text = $"[{DateTime.Now:HH:mm:ss.fff}] [AP] {message}";
+        string text = $"{FormatPrefix()} {message}";
         _logger?.WriteLine(text);
         WriteToDisk(text);
     }
@@ -110,14 +116,14 @@ public static class MyLogger
     {
         if (!_logDebug)
             return;
-        string text = $"[{DateTime.Now:HH:mm:ss.fff}] [AP] [DEBUG] {message}";
+        string text = $"{FormatPrefix()} [DEBUG] {message}";
         _logger?.WriteLine(text);
         WriteToDisk(text);
     }
 
     public static void LogException(string context, Exception ex)
     {
-        string text = $"[{DateTime.Now:HH:mm:ss.fff}] [AP] [EXCEPTION in {context}] {ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}";
+        string text = $"{FormatPrefix()} [EXCEPTION in {context}] {ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}";
         _logger?.WriteLine(text);
         WriteToDisk(text);
     }
