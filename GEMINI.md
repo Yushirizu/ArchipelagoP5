@@ -51,8 +51,9 @@ DO NOT run `FirstTimeSetup.Setup()` before `NewGameSetupSdl` completes! `FirstTi
 
 ### Setup Completion Transition Strategy
 - `_hasRunNewGameSetup` bool in `ScheduleManipulator` guards one-time execution of `NewGameSetupSdl`.
-- On initial setup day hit (4/7 time 4): run `NewGameSetupSdl` (`CALL_EVENT(102, 1)`) and return its result to engine.
-- On subsequent setup day hits (4/7 time 5+): update `dateInfo` to Day 21 (April 22), pass `(4, 22)` to native `OriginalFunction`, and defer `FirstTimeSetup.Setup()` asynchronously via `Task.Run` with 200ms delay.
+- On initial setup day hit (4/7 time 4): run `NewGameSetupSdl` (`CALL_EVENT(102, 1)`) and return its result to engine to kick off the native intro sequence (`102` Casino -> `105` Police -> `101` Difficulty/Name -> `105` Sae -> `104` Velvet -> `106` Shido -> `107` Metro).
+- During subsequent 4/7 hits: allow native engine to execute cutscenes naturally without intercepting or jumping dates.
+- On schedule advance past Day 7 (`month == 4 && day > 7 && day < 22`): update `dateInfo` to Day 21 (April 22), pass `(4, 22)` to native `OriginalFunction`, and defer `FirstTimeSetup.Setup()` asynchronously via `Task.Run` with 200ms delay.
 - **CRITICAL**: Never invoke `FirstTimeSetup.Setup()` synchronously inside `RunScheduleForDayImpl` hook! Mutating bit flags (`6144`) and story progress counter `145` (`40100`) while inside a native schedule hook callback invalidates schedule manager memory and triggers an immediate `0xFFFFFFFFFFFFFFFF` native access violation crash. Deferring execution asynchronously allows native schedule manager to return cleanly.
 
 ---

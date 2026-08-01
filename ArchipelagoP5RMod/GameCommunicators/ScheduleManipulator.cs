@@ -15,6 +15,7 @@ public class ScheduleManipulator
 
     private readonly Action _onNewGameSetup;
     private bool _hasRunNewGameSetup = false;
+    private bool _hasCompletedIntroWarp = false;
 
     public ScheduleManipulator(FlagManipulator flagManipulator, IReloadedHooks hooks, Action onNewGameSetup)
     {
@@ -40,45 +41,49 @@ public class ScheduleManipulator
             uint newMonth = month;
             uint newDay = day;
 
-            var typeOfDay = DateManipulator.ToTypeOfDay(month, day);
-            MyLogger.DebugLog($"[SCHEDULE] typeOfDay: {typeOfDay}");
-
-            switch (typeOfDay)
+            if (_hasRunNewGameSetup && !_hasCompletedIntroWarp && month == 4 && day > 7 && day < 22)
             {
-                case TypeOfDay.Setup:
-                    if (!_hasRunNewGameSetup)
-                    {
-                        _hasRunNewGameSetup = true;
-                        MyLogger.DebugLog("Initial setup day hit: executing custom setup flow function (NewGameSetupSdl).");
-                        return FlowFunctionWrapper.CallCustomFlowFunction(CustomApMethodsIndexes.NewGameSetupSdl);
-                    }
-                    else
-                    {
-                        MyLogger.DebugLog("Setup flow completed - deferring FirstTimeSetup and advancing schedule to Day 21 (April 22).");
-                        Task.Delay(200).ContinueWith(_ => _onNewGameSetup?.Invoke());
+                _hasCompletedIntroWarp = true;
+                MyLogger.DebugLog("Intro sequence finished - advancing schedule to Day 21 (April 22 Leblanc free-roam) and running FirstTimeSetup.");
+                Task.Delay(200).ContinueWith(_ => _onNewGameSetup?.Invoke());
 
-                        var dateInfo = DateManipulator.DateInfoAddress;
-                        if (dateInfo != null)
+                var dateInfo = DateManipulator.DateInfoAddress;
+                if (dateInfo != null)
+                {
+                    dateInfo->currTotalDays = 21;
+                    dateInfo->nextTotalDays = 21;
+                    dateInfo->currTime = 0;
+                    dateInfo->nextTime = 0;
+                }
+                newMonth = 4;
+                newDay = 22;
+            }
+            else
+            {
+                var typeOfDay = DateManipulator.ToTypeOfDay(month, day);
+                MyLogger.DebugLog($"[SCHEDULE] typeOfDay: {typeOfDay}");
+
+                switch (typeOfDay)
+                {
+                    case TypeOfDay.Setup:
+                        if (!_hasRunNewGameSetup)
                         {
-                            dateInfo->currTotalDays = 21;
-                            dateInfo->nextTotalDays = 21;
-                            dateInfo->currTime = 0;
-                            dateInfo->nextTime = 0;
+                            _hasRunNewGameSetup = true;
+                            MyLogger.DebugLog("Initial setup day hit: executing custom setup flow function (NewGameSetupSdl).");
+                            return FlowFunctionWrapper.CallCustomFlowFunction(CustomApMethodsIndexes.NewGameSetupSdl);
                         }
-                        newMonth = 4;
-                        newDay = 22;
                         break;
-                    }
-                case TypeOfDay.InfiltrationDay:
-                    (newMonth, newDay) = GetInfiltrationDay(month, day, time);
-                    break;
-                case TypeOfDay.LoopDay:
-                    (newMonth, newDay) = GetBoringDay(month, day, time);
-                    break;
-                case TypeOfDay.None:
-                default:
-                    (newMonth, newDay) = GetBoringDay(month, day, time);
-                    break;
+                    case TypeOfDay.InfiltrationDay:
+                        (newMonth, newDay) = GetInfiltrationDay(month, day, time);
+                        break;
+                    case TypeOfDay.LoopDay:
+                        (newMonth, newDay) = GetBoringDay(month, day, time);
+                        break;
+                    case TypeOfDay.None:
+                    default:
+                        (newMonth, newDay) = GetBoringDay(month, day, time);
+                        break;
+                }
             }
 
             if (_runScheduleForDayHook == null) return IntPtr.Zero;
