@@ -103,54 +103,84 @@ public static class MyLogger
         return 0; // EXCEPTION_CONTINUE_SEARCH
     }
 
+    private static string _lastMessage = string.Empty;
+    private static int _repeatCount = 0;
+    private const int MaxRepeatsBeforeSuppression = 5;
+
     private static string FormatPrefix() => $"[{DateTime.Now:HH:mm:ss.fff}] [T{Environment.CurrentManagedThreadId}] [AP]";
 
     public static void Log(string message)
     {
-        string text = $"{FormatPrefix()} {message}";
-        _logger?.WriteLine(text);
-        WriteToDisk(text);
+        ProcessAndWriteLog($"{FormatPrefix()} {message}", message);
     }
 
     public static void DebugLog(string message)
     {
         if (!_logDebug)
             return;
-        string text = $"{FormatPrefix()} [DEBUG] {message}";
-        _logger?.WriteLine(text);
-        WriteToDisk(text);
+        ProcessAndWriteLog($"{FormatPrefix()} [DEBUG] {message}", message);
     }
 
     public static void LogException(string context, Exception ex)
     {
-        string text = $"{FormatPrefix()} [EXCEPTION in {context}] {ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}";
-        _logger?.WriteLine(text);
-        WriteToDisk(text);
+        ProcessAndWriteLog($"{FormatPrefix()} [EXCEPTION in {context}] {ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}", $"{context}:{ex.GetType().Name}");
     }
 
-    private static void WriteToDisk(string text)
+    private static void ProcessAndWriteLog(string fullFormattedText, string rawKey)
     {
         lock (_lock)
         {
-            try
+            if (rawKey == _lastMessage)
             {
-                using var fs1 = new FileStream(LogFilePath1, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
-                using var sw1 = new StreamWriter(fs1) { AutoFlush = true };
-                sw1.WriteLine(text);
-                sw1.Flush();
-                fs1.Flush(true);
+                _repeatCount++;
+                if (_repeatCount == MaxRepeatsBeforeSuppression + 1)
+                {
+                    string suppressText = $"{FormatPrefix()} [LOG-SUPPRESSED] Identical log message repeating, further duplicate entries suppressed...";
+                    _logger?.WriteLine(suppressText);
+                    WriteToDiskInternal(suppressText);
+                }
+                if (_repeatCount > MaxRepeatsBeforeSuppression)
+                {
+                    return; // Suppress duplicate log line
+                }
             }
-            catch { }
+            else
+            {
+                if (_repeatCount > MaxRepeatsBeforeSuppression)
+                {
+                    string summaryText = $"{FormatPrefix()} [LOG-SUMMARY] Previous suppressed log entry repeated {_repeatCount} times total.";
+                    _logger?.WriteLine(summaryText);
+                    WriteToDiskInternal(summaryText);
+                }
+                _lastMessage = rawKey;
+                _repeatCount = 1;
+            }
 
-            try
-            {
-                using var fs2 = new FileStream(LogFilePath2, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
-                using var sw2 = new StreamWriter(fs2) { AutoFlush = true };
-                sw2.WriteLine(text);
-                sw2.Flush();
-                fs2.Flush(true);
-            }
-            catch { }
+            _logger?.WriteLine(fullFormattedText);
+            WriteToDiskInternal(fullFormattedText);
         }
+    }
+
+    private static void WriteToDiskInternal(string text)
+    {
+        try
+        {
+            using var fs1 = new FileStream(LogFilePath1, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
+            using var sw1 = new StreamWriter(fs1) { AutoFlush = true };
+            sw1.WriteLine(text);
+            sw1.Flush();
+            fs1.Flush(true);
+        }
+        catch { }
+
+        try
+        {
+            using var fs2 = new FileStream(LogFilePath2, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
+            using var sw2 = new StreamWriter(fs2) { AutoFlush = true };
+            sw2.WriteLine(text);
+            sw2.Flush();
+            fs2.Flush(true);
+        }
+        catch { }
     }
 }
