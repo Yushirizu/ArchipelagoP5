@@ -13,6 +13,7 @@ public enum ScheduleState
 public class ScheduleManipulator
 {
     readonly FlagManipulator _flagManipulator;
+    readonly DateManipulator _dateManipulator;
 
     [Function(CallingConventions.Fastcall)]
     private delegate IntPtr RunScheduleForDay(uint month, uint day, byte time);
@@ -23,9 +24,10 @@ public class ScheduleManipulator
     private readonly Action _onNewGameSetup;
     public ScheduleState CurrentState { get; private set; } = ScheduleState.Uninitialized;
 
-    public ScheduleManipulator(FlagManipulator flagManipulator, IReloadedHooks hooks, Action onNewGameSetup)
+    public ScheduleManipulator(FlagManipulator flagManipulator, DateManipulator dateManipulator, IReloadedHooks hooks, Action onNewGameSetup)
     {
         _flagManipulator = flagManipulator;
+        _dateManipulator = dateManipulator;
         _onNewGameSetup = onNewGameSetup;
 
         AddressScanner.DelayedScanPattern(
@@ -71,7 +73,11 @@ public class ScheduleManipulator
                         if (CurrentState == ScheduleState.SetupFlowStarted)
                         {
                             CurrentState = ScheduleState.IntroWarpCompleted;
-                            MyLogger.DebugLog("[SCHEDULE:WARP] Setup flow completed - deferring FirstTimeSetup and advancing schedule to Day 21 (April 22).");
+                            if (_dateManipulator != null)
+                            {
+                                _dateManipulator.IsSetupComplete = true;
+                            }
+                            MyLogger.DebugLog("[SCHEDULE:WARP] Setup flow completed - setting IsSetupComplete=true, deferring FirstTimeSetup and advancing schedule to Day 21 (April 22).");
                             Task.Delay(500).ContinueWith(_ => _onNewGameSetup?.Invoke());
                         }
 

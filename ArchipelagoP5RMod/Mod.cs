@@ -102,7 +102,7 @@ public class Mod : ModBase // <= Do not Remove.
         _chestRewardDirector = new ChestRewardDirector();
         _apFlagItemRewarder = new ApFlagItemRewarder(_itemManipulator, _flagManipulator);
         _messageManipulator = new MessageManipulator(_flagManipulator, _hooks);
-        _scheduleManipulator = new ScheduleManipulator(_flagManipulator, _hooks, () => OnGameFileLoaded(true));
+        _scheduleManipulator = new ScheduleManipulator(_flagManipulator, _dateManipulator, _hooks, () => OnGameFileLoaded(true));
         _infiltrationManager = new InfiltrationManager(_flagManipulator, _itemManipulator);
         _conquestManager = new ConquestManager(_flagManipulator);
         _personaManipulator = new PersonaManipulator(_hooks);
