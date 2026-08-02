@@ -117,8 +117,6 @@ void NotifyMissingSaveDirectory()
 // Procedure Index: 6
 void NewGameSetupSdl()
 {
-    BIT_ON( 6144 );
-    SET_COUNT( 145, 40100 );
     CALL_EVENT( 102, 1 );
 }
 
