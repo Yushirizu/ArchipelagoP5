@@ -66,11 +66,14 @@ public class ScheduleManipulator
                         MyLogger.DebugLog("[SCHEDULE:SETUP] Initial setup day hit: executing custom setup flow function (NewGameSetupSdl).");
                         return FlowFunctionWrapper.CallCustomFlowFunction(CustomApMethodsIndexes.NewGameSetupSdl);
                     }
-                    else if (CurrentState == ScheduleState.SetupFlowStarted)
+                    else
                     {
-                        CurrentState = ScheduleState.IntroWarpCompleted;
-                        MyLogger.DebugLog("[SCHEDULE:WARP] Setup flow completed - deferring FirstTimeSetup and advancing schedule to Day 21 (April 22).");
-                        Task.Delay(500).ContinueWith(_ => _onNewGameSetup?.Invoke());
+                        if (CurrentState == ScheduleState.SetupFlowStarted)
+                        {
+                            CurrentState = ScheduleState.IntroWarpCompleted;
+                            MyLogger.DebugLog("[SCHEDULE:WARP] Setup flow completed - deferring FirstTimeSetup and advancing schedule to Day 21 (April 22).");
+                            Task.Delay(500).ContinueWith(_ => _onNewGameSetup?.Invoke());
+                        }
 
                         newMonth = 4;
                         newDay = 22;
